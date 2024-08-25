@@ -1,7 +1,7 @@
 #include <stdio.h>
 
 int main(){
-    int i, sel, pos, cant;
+    int i, sel, cant;
     char letras[10];
     char selec, aux, retiro, choto;
     printf("Ingrese la cantidad de posiciones del arreglo: ");
