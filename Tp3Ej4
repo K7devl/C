@@ -1,0 +1,31 @@
+#include <stdio.h>
+
+int main(){
+    int i, sel, pos, cant;
+    char letras[10];
+    char selec, aux, retiro, choto;
+    printf("Ingrese la cantidad de posiciones del arreglo: ");
+    scanf("%d", &cant);
+    for(i=0;i<cant;i++){
+        printf("Ingrese el caracter n°%d: ", i);
+        scanf(" %c", &letras[i]); getchar();
+    }
+    for(i=0;i<cant;i++){
+        printf(" %c \n", letras[i]);
+    }
+    printf("Ingrese el nuevo caracter a ingresar: ");
+    scanf(" %c", &selec); getchar();
+    printf("Ingrese la posición en la que desea asignarlo: ");
+    scanf(" %d", &sel);
+    retiro = letras[sel];
+    letras[sel] = selec;
+    aux = retiro;
+    for(i=sel+1;i<cant;i++){
+        retiro = letras[i];
+        letras[i] = aux;
+        aux = retiro;
+    }
+    for(i=0;i<cant;i++){
+        printf(" %c \n", letras[i]);
+    }
+}
