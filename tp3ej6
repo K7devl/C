@@ -1,0 +1,36 @@
+#include <stdio.h>
+/*Hacer un programa que dado un arreglo de números reales los ordene de menor a
+mayor. El programa deberá definir y usar (o reusar) una función para ingresar los
+datos, otra para ordenar el arreglo y otra para mostrar el arreglo antes y después del
+ordenamiento.
+*/
+int main(){
+    int i, cant, x;
+    float numeros[10];
+    float aux;
+    int valor;
+    printf("Ingrese la cantidad de arreglos: ");
+    scanf(" %d", &cant);
+    for(i=0;i<cant;i++){
+        printf("Ingrese la posicion n%d : ", i);
+        scanf(" %f", &numeros[i]);
+    }
+    printf("La lista original es:\n");
+    for(i=0;i<cant;i++){
+        printf("La posicion n%d es: %.2f\n", i, numeros[i]);
+    }
+    for(i=0;i<cant;i++){
+        for(x=i;x<cant;x++){
+            if(numeros[i]>numeros[x]){
+                aux = numeros[i];
+                numeros[i]=numeros[x];
+                numeros[x]=aux;
+        }
+    }
+
+    }
+    printf("La lista ordenada es:\n");
+    for(i=0;i<cant;i++){
+        printf("La posicion n%d es: %.2f\n", i, numeros[i]);
+    }
+}
