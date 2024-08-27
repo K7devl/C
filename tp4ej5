@@ -1,0 +1,41 @@
+#include <stdio.h>
+
+/*5- Hacer un programa que permita borrar un caracter en un arreglo de caracteres. Se
+borra en el lugar del arreglo que el usuario del programa solicite y deben desplazarse
+los caracteres una posición desde la posición dada hasta la posición final del arreglo.
+El programa deberá definir y usar (o reusar) una función para ingresar los datos, otra
+para hacer la supresión y otra para mostrar el arreglo antes y después de la misma. */
+int main(){
+    int i, pos, cant;
+    char letras[10];
+    char cero, aux, auuu;
+    cero = " ";
+    printf("Ingrese la cantidad de arregloss: ");
+    scanf(" %d", &cant);
+    for(i=0;i<cant;i++){
+        printf("Ingrese la posicion n%d : ", i);
+        scanf(" %c", &letras[i]); getchar();
+    }
+    for(i=0;i<cant;i++){
+        printf("La posicion n%d es: %c\n", i, letras[i]);
+    }
+    printf("Ingrese la posicion a cambiar: ");
+    scanf(" %d", &pos);
+    auuu = letras[cant-1];
+    letras[pos] = cero;
+    for(i=(cant-1);i>(pos-1);i--){
+        aux = letras[i];
+        letras[i] = auuu;
+        auuu = aux;
+    }
+    letras[(cant-1)] = cero;
+    for(i=0;i<cant-1;i++){
+        printf("La posicion n%d es: %c\n", i, letras[i]);
+    }
+
+
+
+
+
+
+}
