@@ -1,0 +1,73 @@
+#include <stdio.h>
+#include <string.h>
+
+/*9- Hacer un programa que permita guardar las notas de las 13 materias que cursa un
+alumno de secundario en un arreglo. Las notas pueden ser: S=(10,9,8), A= (7,6,5,4),
+R=(3,2,1) (Superó, Aprobó, Reprobó). Para esto deberá contar con las siguientes
+funciones: CargaNota (carga las notas del alumno), MuestraNota (muestra las notas),
+Aplazos (la función deberá retornar la cantidad de R que tiene el alumno, si la cantidad
+es mayor o igual 7 se deberá mostrar por pantalla un mensaje: ‘Alta Posibilidad de
+Repetir’. */
+
+void carga_notas(int *notas, char *letras){
+    int i;
+    for(i=0;i<13;i++){
+        do{
+            printf("Ingrese la nota n*%d: ", i);
+            scanf(" %d", &notas[i]);
+        }while(notas[i]>10);
+
+        if(notas[i] == 8 || notas[i] == 9 || notas[i] == 10){
+            letras[i] = 'S';
+        }
+        if( notas[i] == 4 || notas[i] == 5 || notas[i] == 6 || notas[i] == 7){
+            letras[i] = 'A';
+        }
+        if(notas[i] == 3 || notas[i] == 2 || notas[i] == 1){
+            letras[i] = 'R';
+        }
+    }
+}
+
+void muetra_notas(int *notas, char *letras){
+    int i;
+    for(i=0;i<13;i++){
+        printf("La nota n%d es: %d / %c \n",i,notas[i], letras[i] );
+    }
+}
+
+void muetra_aplazos(char *letras){
+    int i, cont;
+    cont = 0;
+    for(i=0;i<13;i++){
+        if(letras[i] == 'R'){
+            cont += 1;
+        }
+    }
+    printf("La cantidad de materias aplazadas es de: %d\n", cont);
+    if(cont >= 7){
+        printf("Alta probabilidad de recursar. ");
+    }
+}
+
+int main(){
+    int sel;
+    int notas[13];
+    char letras[13];
+
+    do{
+        printf("\n\n1/ cargar notas.\n"
+               "2/ mostrar notas. \n"
+               "3/ mostrar aplazos. \n"
+               "4/ salir.\n"
+               );
+               scanf(" %d", &sel);
+               switch(sel){
+                   case 1: carga_notas(&notas, &letras);break;
+                   case 2: muetra_notas(notas, letras);break;
+                   case 3: muetra_aplazos(letras);break;
+                   case 4: printf("saliendo...\n\n\n\n"); return 0;
+                   default: printf("Sos boludo???\n");
+               }
+    }while(sel != 4);
+}
