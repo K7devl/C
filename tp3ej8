@@ -1,0 +1,43 @@
+#include <stdio.h>
+#include <string.h>
+/*8- Hacer un programa que dado pares de strings (a) indique cual es el menor (b)
+almacene el mayor en una variable (c) muestre la cantidad de caracteres de cada
+string (d) permitir al usuario ingresar 3 (o más) pares de Strings de manera que una
+vez finalizada la ejecución del programa muestre el String mayor de todos. Utilice la
+librería String.h */
+
+
+int main(){
+    int i, z, cant, cant2, cantvar;
+    char cadena[33];
+    char variables[6][33];
+    for(i=0;i<6;i++){
+        printf("Ingrese el %d string: ", i);
+        scanf(" %[^\n]s", variables[i]);
+    }
+    z = strlen(variables[0]);
+    for(i=1;i<6;i++){                //menor
+         cantvar = strlen(variables[i]);
+        if(cantvar<z){
+            z = cantvar;
+            cant = i;
+            strcpy(cadena, variables[i]);
+        }
+    }
+    printf("El menor string es el %d con: %d caracteres. \" %s\"\n", cant, z, cadena);
+
+    z = strlen(variables[0]);
+    for(i=1;i<6;i++){               //mayor
+        cantvar = strlen(variables[i]);
+        if(cantvar>z){
+            z = cantvar;
+            cant = i;
+            strcpy(cadena, variables[i]);
+        }
+    }
+    printf("El mayor string es el %d con: %d caracteres. \" %s\"\n", cant, z, cadena);
+
+
+
+
+}
