@@ -1,0 +1,30 @@
+#include <stdio.h>
+#include <string.h>
+
+/*5. Declare una función recursiva que devuelva la suma de todos los elementos de un
+arreglo de números reales. Probar la función en un programa.
+*/
+
+float sumatoria(float numeros[], int ind, float total, int cant){
+    if(ind == cant){
+        return total;
+    }
+    else{
+            total = total + numeros[ind];
+        return sumatoria(numeros,ind+1,total,cant);
+    }
+}
+
+int main(){
+    float numeros[10];
+    int ind, cant,i;
+    float total;
+    ind = 0;
+    printf("Ingrese la cantidad de numeros que quiere sumar: ");
+    scanf(" %d", &cant);
+    for(i=0;i<cant;i++){
+        printf("Ingrese el numero <%d>  ",i);
+        scanf(" %f", &numeros[i]);
+    }
+    printf ("La suma de todos los numeros es: %.2f", sumatoria(numeros,ind, total, cant));
+}
