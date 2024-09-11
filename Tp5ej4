@@ -1,0 +1,36 @@
+#include <stdio.h>
+#include <string.h>
+
+
+/*4. Hacer una función recursiva que compare dos string S1 y S2 de igual longitud. La
+función retorna 1 si S1=S2, 0 si son diferentes.
+*/
+
+
+int recur(char *s1, char *s2, int i){
+    if(i==strlen(s1))
+        return 0;
+
+    if(s1[i]==s2[i])
+        return recur(s1,s2,i+1);
+
+    else
+        return 1;
+}
+
+int main(){
+    char string1[20];
+    char string2[20];
+    int i;
+    printf("Ingrese el primer string: ");
+    scanf(" %[^\n]s", string1);
+    printf("Ingrese el segundo string: ");
+    scanf(" %[^\n]s", string2);
+    i=0;
+    if(recur(string1, string2, i)==0){
+        printf("\nLos strings son iguales: %s == %s", string1, string2);
+    }
+    if(recur(string1, string2, i)==1){
+        printf("\nLos strings no son iguales: %s != %s", string1, string2);
+    }
+}
