@@ -1,0 +1,30 @@
+#include <stdio.h>
+#include <string.h>
+
+/*7. Hacer una función recursiva que devuelva el mayor valor de un arreglo de enteros.
+Probar la función en un programa. */
+
+int busc(int *num, int menor, int i){
+    if(i==0)
+        return menor;
+    if(num[i] < menor){
+        menor = i;
+        return busc(num, menor, i-1);
+        }
+    else
+        return busc(num, menor, i-1);
+}
+
+int main(){
+    int num[100];
+    int i, cant, menor;
+    printf("Ingrese la cantidad d numeros a comparar: ");
+    scanf(" %d", &cant);
+    for(i=0;i<cant;i++){
+        printf("Ingrese el numero <%d> ", i);
+        scanf(" %d", &num[i]);
+    }
+    menor = num[0];
+    printf("El menor numero es el %d, con posicion <%d>", num[busc(num, menor, cant-1)], busc(num, menor, cant-1));
+
+}
