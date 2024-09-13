@@ -25,7 +25,8 @@ int main(){
     jiji = 97;
     z=0;
     for(i=0;i<10;i++){
-        letras[i] = jiji+i;
+        printf("Ingrese la letra <%d> ", i);
+        scanf(" %c", &letras[i]);
     }
     ordenar(letras, i, aux1, aux2, 0, cant);
     for(i=0;i<10;i++){
