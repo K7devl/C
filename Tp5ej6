@@ -4,32 +4,23 @@
 /*6. Hacer una función recursiva que imprima el contenido de un arreglo de caracteres
 de atrás para adelante. Probar la función en un programa. */
 
-char ordenar(char *letras, int i, char aux1, char aux2, int z, int cant){
-    if (z == 5 || i == 4){
-        return 0;
+char ordenar(char *letras, int i){
+    if (i==0){
+        return letras[0];
     }
     else{
-        aux1=letras[z];
-        aux2=letras[i];
-        letras[i] = aux1;
-        letras[z] = aux2;
-        return ordenar(letras, i-1, aux1, aux2, z+1, cant);
+        printf("%c\n", letras[i]);
+        return ordenar(letras, i-1);
     }
 }
 
 int main(){
     char letras[10];
-    char aux1, aux2;
-    int i,z, cant, jiji;
-    cant = 5;
-    jiji = 97;
-    z=0;
+    int i;
     for(i=0;i<10;i++){
         printf("Ingrese la letra <%d> ", i);
         scanf(" %c", &letras[i]);
     }
-    ordenar(letras, i, aux1, aux2, 0, cant);
-    for(i=0;i<10;i++){
-        printf("%d - %c\n", i, letras[i]);
-    }
+    printf("\nEl arreglo dado vuelta es: ");
+    printf("%c\n", ordenar(letras, i));
 }
