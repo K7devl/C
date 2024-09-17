@@ -1,0 +1,47 @@
+#include <stdio.h>
+#include <string.h>
+#include <malloc.h>
+
+
+/*1. Realice un programa que muestre por pantalla el valor almacenado, la dirección y el
+tamaño de los punteros definidos para los siguientes datos:
+a. un entero
+b. un char
+c. un float
+d. una cantidad n de enteros con n*/
+
+int main(){
+    int e, i, n;
+    char c;
+    float f;
+    int en[20];
+
+    int *pint = (int*)malloc(sizeof(e));
+    int *pinti = (int*)malloc(sizeof(i));
+    int *pintn = (int*)malloc(sizeof(n));
+    char *pchar = (char*)malloc(sizeof(c));
+    float *pfloat = (float*)malloc(sizeof(f));
+    printf("Ingrese un entero: ");
+    scanf(" %d", &e);
+    printf("Ingrese un caracter: ");
+    scanf(" %c", &c); getchar();
+    printf("Ingrese un float: ");
+    scanf(" %f", &f);
+    printf("Ingrese la n cantidad de numeros que quiere cargar: ");
+    scanf(" %d", &n);
+    int *pcad = (int*)malloc(sizeof(pcad)*20);
+    for(i=0;i<n;i++){
+        printf("<%d> ",i);
+        scanf(" %d", &en[i]);
+    }
+    printf("\nEl entero es: %d\nSu direccion es: %d\nEl tamanio de su puntero es: %d\n"
+           , e, &e, sizeof(*pint));
+    printf("\nEl char es: %c\nSu direccion es: %d\nEl tamanio de su puntero es: %d\n"
+           , c, &c, sizeof(*pchar));
+    printf("\nEl float es: %.2f\nSu direccion es: %d\nEl tamanio de su puntero es: %d\n"
+           , f, &f, sizeof(*pfloat));
+    for(i=0;i<n;i++){
+        printf("\nEl entero <%d> es: %d\nSu direccion es: %d\nEl tamanio de su puntero es: %d\n", i, en[i], &en[i], sizeof(*pcad));
+}
+    printf("\nEl tamaño de los %d numeros es: %d\n\n", n, sizeof(*pcad)*n);
+}
