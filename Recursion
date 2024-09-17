@@ -1,0 +1,139 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+int recurH(int h){
+    if(h==104){
+        return h;
+    }
+    else{
+    printf("%c\n", h);
+    usleep(1200);
+        return recurH(h+1);
+    }
+}
+
+int recurO(int o){
+    if(o==111){
+        return o;
+    }
+    else{
+    printf("h%c\n", o);
+    usleep(1200);
+        return recurO(o+1);
+    }
+}
+
+int recurL(int l){
+    if(l==108){
+        return l;
+    }
+    else{
+    printf("ho%c\n", l);
+    usleep(1200);
+        return recurL(l+1);
+    }
+}
+
+int recurA(int a){
+    if(a==97){
+        return a;
+    }
+    else{
+    printf("hol%c\n", a);
+    usleep(1200);
+        return recurA(a+1);
+    }
+}
+
+int recur_(int _){
+    if(_==95){
+        return _;
+    }
+    else{
+    printf("hola%c\n", _);
+    usleep(1200);
+        return recur_(_+1);
+    }
+}
+
+int recurM(int m){
+    if(m==109){
+        return m;
+    }
+    else{
+    printf("hola_%c\n", m);
+    usleep(1200);
+        return recurM(m+1);
+    }
+}
+
+int recurU(int u){
+    if(u==117){
+        return u;
+    }
+    else{
+    printf("hola_m%c\n", u);
+    usleep(1200);
+        return recurU(u+1);
+    }
+}
+
+int recurN(int n){
+    if(n==110){
+        return n;
+    }
+    else{
+    printf("hola_mu%c\n", n);
+    usleep(1200);
+        return recurN(n+1);
+    }
+}
+
+int recurD(int d){
+    if(d==100){
+        return d;
+    }
+    else{
+    printf("hola_mun%c\n", d);
+   usleep(1200);
+        return recurD(d+1);
+    }
+}
+
+int recurO1(int o){
+    if(o==111){
+        return o;
+    }
+    else{
+    printf("hola_mund%c\n", o);
+   usleep(1200);
+        return recurO1(o+1);
+    }
+}
+
+int main(){
+
+    int h,o,l,a,_,m,u,n,d, o1;
+    h=55;
+    o=55;
+    l=55;
+    a=55;
+    _=55;
+    m=55;
+    u=55;
+    n=55;
+    d=55;
+    o1=55;
+
+    printf("%c\n", recurH(h));
+    printf("h%c\n", recurO(o));
+    printf("ho%c\n", recurL(l));
+    printf("hol%c\n", recurA(a));
+    printf("hola%c\n", recur_(_));
+    printf("hola_%c\n", recurM(m));
+    printf("hola_m%c\n", recurU(u));
+    printf("hola_mu%c\n", recurN(n));
+    printf("hola_mun%c\n", recurD(d));
+    printf("hola_mund%c\n", recurO1(o1));
+
+}
