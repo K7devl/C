@@ -1,4 +1,4 @@
-#include "tp7ej4.h"
+#include "pila.h"
 
 void ingre(Pila *pila, int *cant){
     int i, aux, aux1;
