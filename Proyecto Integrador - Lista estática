@@ -1,0 +1,82 @@
+#ifndef LISTAE_CLIENTE_H_INCLUDED
+#define LISTAE_CLIENTE_H_INCLUDED
+#include "cliente_tda.h"
+#define MAX 1000
+
+typedef struct{
+    Cliente cliente[MAX];
+    int cur;
+    int aux;
+}Lista_cliente;
+
+void initEs(Lista_cliente *l){
+    l->cur = -1;
+    l->aux = -1;
+}
+
+void resetListaEs(Lista_cliente *l){
+    l->cur = 0;
+}
+
+Cliente copyyEs(Lista_cliente l){
+    return l.cliente[l.cur];
+}
+
+void inseertEs(Lista_cliente *l, Cliente c){
+    if(l->cur == -1){
+        l->aux++;
+        l->cur++;
+        strcpy(l->cliente[l->cur].apellido, getClienteApellido(c));
+        l->cliente[l->cur].cant_trat = getClienteCantT(c);
+        l->cliente[l->cur].idcliente = getClienteIdCliente(c);
+        l->cliente[l->cur].nivel = getClienteNivel(c);
+        strcpy(l->cliente[l->cur].nombre, getClienteNombre(c));
+    }
+    else{
+        strcpy(l->cliente[l->cur].apellido, getClienteApellido(c));
+        l->cliente[l->cur].cant_trat = getClienteCantT(c);
+        l->cliente[l->cur].idcliente = getClienteIdCliente(c);
+        l->cliente[l->cur].nivel = getClienteNivel(c);
+        strcpy(l->cliente[l->cur].nombre, getClienteNombre(c));
+        l->aux++;
+    }
+}
+
+void forwardsEs(Lista_cliente *l){
+    l->cur++;
+}
+
+void suppressEs(Lista_cliente *l){
+    int i;
+    for(i = l->cur; i < l->aux; i++){
+        strcpy(l->cliente[i].apellido, l->cliente[i + 1].apellido);
+        l->cliente[i].cant_trat = l->cliente[i + 1].cant_trat;
+        l->cliente[i].idcliente = l->cliente[i + 1].idcliente;
+        l->cliente[i].nivel =  l->cliente[i + 1].nivel;
+        strcpy(l->cliente[i].nombre, l->cliente[i + 1].nombre);;
+        }
+    l->aux--;
+}
+
+int isOosEs(Lista_cliente l){
+    if(l.cur-1 == l.aux)
+        return 1;
+    else
+        return 0;
+}
+
+int isEmptyEs(Lista_cliente l){
+    if(l.cur == -1)
+        return 1;
+    else
+        return 0;
+}
+
+int isFullEs(Lista_cliente l){
+    if(l.aux == MAX)
+        return 1;
+    else
+        return 0;
+}
+
+#endif // LISTAE_CLIENTE_H_INCLUDED
