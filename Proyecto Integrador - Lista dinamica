@@ -1,0 +1,103 @@
+#ifndef LISTA_H_INCLUDED
+#define LISTA_H_INCLUDED
+#include "turno.h"
+
+struct nodo{
+    Turno t;
+    struct nodo *siguiente;
+};
+typedef struct nodo Nodo;
+
+typedef struct{
+    Nodo *acc;
+    Nodo *cur;
+    Nodo *aux;
+}Lista_din;
+
+void init(Lista_din *l){
+    l->acc = NULL;
+    l->cur = NULL;
+    l->aux = NULL;
+}
+
+void reset(Lista_din *l){
+    l->cur = l->acc;
+    l->aux = l->acc;
+}
+
+int isOos(Lista_din l){
+    if(l.cur == NULL)
+        return 1;
+    else
+        return 0;
+}
+
+Turno copyy(Lista_din l){
+    return l.cur->t;
+}
+
+void inseert(Lista_din *l, Turno turno){
+    int i;
+    Nodo *pedido = (Nodo*)malloc(sizeof(Nodo));
+    strcpy(pedido->t.forma_de_pago, get_formaDePago(turno));
+    pedido->t.idCliente = get_idCliente(turno);
+    pedido->t.idTurno = get_idTurno(turno);
+    strcpy(pedido->t.nombre, get_nombre(turno));
+    strcpy(pedido->t.apellido, get_apellido(turno));
+    pedido->t.realizado = get_realizado(turno);
+    pedido->t.total = get_total(turno);
+    pedido->t.fecha.anio = get_anio(turno);
+    pedido->t.fecha.hora = get_horario(turno);
+    pedido->t.fecha.dia = get_dia(turno);
+    pedido->t.fecha.mes = get_mes(turno);
+    for(i=0;i<10;i++){
+        strcpy(pedido->t.trat[i].nombre, get_nombreTratamiento(turno, i));
+        pedido->t.trat[i].precio = get_preciosTratamientos(turno, i);
+        pedido->t.trat[i].indice = get_indiceTratamientos(turno, i);
+    }
+
+    if(l->acc == l->cur){
+        l->acc = pedido;
+        pedido->siguiente = l->cur;
+        l->cur = pedido;
+        l->aux = pedido;
+    }else{
+        l->aux->siguiente = pedido;
+        pedido->siguiente = l->cur;
+        l->cur = pedido;
+    }
+}
+
+void forwards(Lista_din *l){
+    l->aux = l->cur;
+    l->cur = l->cur->siguiente;
+}
+
+void suppress(Lista_din *l){
+    if(l->acc == l->cur){
+        l->acc = l->cur->siguiente;
+        free((void*)l->cur);
+        l->cur = l->acc;
+        l->aux = l->acc;
+    }else{
+        l->aux->siguiente = l->cur->siguiente;
+        free((void*)l->cur);
+        l->cur = l->aux->siguiente;
+    }
+}
+
+int isEmpty(Lista_din l){
+    if(l.acc == NULL)
+        return 1;
+    else
+        return 0;
+}
+
+int isFull(Lista_din l){
+    if(l.acc != l.cur && l.cur == NULL)
+        return 1;
+    else
+        return 0;
+}
+
+#endif // LISTA_H_INCLUDED
