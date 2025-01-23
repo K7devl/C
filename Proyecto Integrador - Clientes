@@ -1,0 +1,61 @@
+#ifndef CLIENTE_TDA_H_INCLUDED
+#define CLIENTE_TDA_H_INCLUDED
+
+typedef struct{
+    int idcliente;          //DNI
+    char nombre[31];
+    char apellido[31];
+    int cant_trat;
+    int nivel;            //LV 0: Nuevo cliente     LV 1: 1 a 4 trata    LV 2: 5 a 10 trata         LV 3: +10 trata
+}Cliente;
+
+void setClienteNombre(Cliente *c, char x[]){
+    strcpy(c->nombre, x);
+}
+char* getClienteNombre(Cliente c){
+    char *aux = (char*)malloc(strlen(c.nombre) + 1);
+    strcpy(aux, c.nombre);
+    return aux;
+}
+
+
+void setClienteApellido(Cliente *c, char x[]){
+    strcpy(c->apellido, x);
+}
+char* getClienteApellido(Cliente c){
+    char *aux = (char*)malloc(strlen(c.apellido) + 1);
+    strcpy(aux, c.apellido);
+    return aux;
+}
+
+
+void setClienteCantT(Cliente *c, int x){
+    c->cant_trat = x;
+}
+int getClienteCantT(Cliente c){
+    return c.cant_trat;
+}
+
+
+void setClienteNivel(Cliente *c){
+    if(getClienteCantT(*c) <= 0)
+        c->nivel = 0;
+    if(getClienteCantT(*c)>=1 && getClienteCantT(*c) <=4)
+        c->nivel = 1;
+    if(getClienteCantT(*c)>=5 && getClienteCantT(*c) <=10)
+        c->nivel = 2;
+    if(getClienteCantT(*c)>10)
+        c->nivel = 3;
+}
+
+int getClienteNivel(Cliente c){
+    return c.nivel;
+}
+
+void setClienteIdCliente(Cliente *c, int x){
+    c->idcliente = x;
+}
+int getClienteIdCliente(Cliente c){
+    return c.idcliente;
+}
+#endif // CLIENTE_TDA_H_INCLUDED
