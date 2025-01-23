@@ -1,0 +1,1463 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <malloc.h>
+#include "lista.h"
+#include "ListaE_cliente.h"
+#define MAX 1000
+
+void modificar_ClienteCantT_MANUAL(Lista_cliente *l, int id){                                                   //ITEM H
+    int new_cantT;
+    Cliente aux;
+
+    if(buscarID(l, id) == 1){
+        aux = copyyEs(*l);
+
+        printf("Ingrese la nueva cantidad de tratamientos\n> ");
+        do{
+            scanf(" %d", &new_cantT);
+        }while(new_cantT < 0);
+        setClienteCantT(&aux, new_cantT);
+        setClienteNivel(&aux);
+
+        inseertEs(l, aux);
+        while(!isOosEs(*l)){
+            forwardsEs(l);
+        }
+        suppressEs(l);
+
+    }
+    else{
+        printf("No se encontro al cliente\n");
+    }
+}
+
+void modificar_ClienteCantT_AUTOMATICO(Lista_cliente *l, int newCantT, int idcliente){                  //FUNCION AUXILIAR
+    int auxInt;
+    Cliente aux;
+
+
+    buscarID(l, idcliente);
+    aux = copyyEs(*l);
+
+    auxInt = getClienteCantT(aux) + newCantT;
+
+    setClienteCantT(&aux, auxInt);
+    setClienteNivel(&aux);
+
+    inseertEs(l, aux);
+
+    while(isOosEs(*l)==0){          //AL MODIFICAR UN CLIENTE Y PONER INSERT, SE SUMA 1 AL AUX (TOPE) Y GENERA UN CLIENTE FANTASMA, CON ESTO LO ELIMINAS
+        forwardsEs(l);
+    }
+    suppressEs(l);
+}
+
+void mostrar_ListaClientes(Lista_cliente l){        //ITEM Ñ
+    int i;
+    Cliente aux;
+    resetListaEs(&l);
+    i=0;
+
+    if(isOosEs(l)==1)
+        printf("\nNo hay mas clientes cargados\n");
+    else{
+        do{
+            aux = copyyEs(l);
+            printf("-------------------------------- Cliente %d --------------------------------\n", i + 1);
+            printf("DNI Cliente: %d\n", getClienteIdCliente(aux));
+            printf("Nombre: %s\n", getClienteNombre(aux));
+            printf("Apellido: %s\n", getClienteApellido(aux));
+            printf("Nivel: %d\n", getClienteNivel(aux));
+            printf("Tratamientos: %d\n", getClienteCantT(aux));
+            forwardsEs(&l);
+            i++;
+        }while(!isOosEs(l));
+    }
+}
+
+void precarga_clientes(Lista_cliente *l, Cliente *c, int *cant){           //ITEM N
+    FILE *f;
+    int aux_int;
+    char aux_string[31];
+
+    f = fopen("clientes.txt", "r");
+
+    if(f == NULL)
+        printf("No existe el archivo...\n");
+
+    if(feof(f))
+        printf("El archivo esta vacio...\n");
+    else{
+        do{
+            fscanf(f, " %d", &aux_int);
+            setClienteIdCliente(c, aux_int);
+            fscanf(f ," %30[^\n]s", aux_string);
+            setClienteNombre(c, aux_string);
+            fscanf(f, " %30[^\n]s", aux_string);
+            setClienteApellido(c, aux_string);
+            fscanf(f, " %d", &aux_int);
+            setClienteCantT(c, aux_int);
+            fscanf(f, " %d", &aux_int);
+            setClienteNivel(c);
+
+            *cant = *cant + 1;
+            inseertEs(l, *c);
+            forwardsEs(l);
+        }while(!feof(f));
+    }
+    fclose(f);
+}
+
+int eliminar_Cliente(Lista_cliente *l, Cliente c){         //ITEM O
+    int opcion, auxInt;
+    resetListaEs(l);
+    Cliente aux;
+    system("cls");
+    printf("--------------- ELIMINAR UN CLIENTE ---------------\n");
+    printf("Ingrese el DNI del cliente a borrar: ");
+    scanf(" %d", &opcion);
+
+    do{
+        aux = copyyEs(*l);
+        if(getClienteIdCliente(aux) == opcion){
+            printf("Cliente encontrado\n");
+            printf("<1> Confirmar eliminacion\n");
+            printf("<2> Cancelar\n");
+            do{
+                scanf(" %d", &auxInt);
+            }while(auxInt != 1 && auxInt != 2);
+            if(auxInt==1){
+                suppressEs(l);
+                printf("Cliente eliminado\n");
+                return 1;
+            }
+            if(auxInt == 2)
+                return 0;
+        }
+        else
+            forwardsEs(l);
+    }while(!isOosEs(*l));
+    printf("Cliente inexistente\n");
+    return 0;
+}
+
+int MostrarBuscarID(Lista_cliente *lista, int id){
+    Cliente aux;
+    resetListaEs(lista);
+
+    do{
+        aux = copyyEs(*lista);
+        if(id == getClienteIdCliente(aux)){
+            printf("DNI Cliente: %d\n", getClienteIdCliente(aux));
+            printf("Nombre: %s\n", getClienteNombre(aux));
+            printf("Apellido: %s\n", getClienteApellido(aux));
+            printf("Nivel: %d\n", getClienteNivel(aux));
+            printf("Tratamientos: %d\n", getClienteCantT(aux));
+            return 1;
+        }else{
+            forwardsEs(lista);
+        }
+    }while(id != getClienteIdCliente(aux) && !isOosEs(*lista));
+
+   printf("No se encontro al cliente\n");
+   return 0;
+}
+
+int buscarID(Lista_cliente *l, int temp_ID){            //FUNCION AUXILIAR  1 SI LO ENCUENTRA, 0 SI NO
+    Cliente aux;
+    resetListaEs(l);
+
+
+        do{
+            aux = copyyEs(*l);
+            if(temp_ID == getClienteIdCliente(aux)){
+                return 1;
+            }else{
+                forwardsEs(l);
+            }
+        }while(temp_ID != getClienteIdCliente(aux) && !isOosEs(*l));
+
+       return 0;
+
+}
+
+int cargar_NuevoCliente(Cliente *c, Lista_cliente *l){               //ITEM L  //MOVER DESPUES DE LLAMAR LA FUNCION
+    int aux_int;
+
+    char aux_char[31];
+
+    system("cls");
+    printf("--------------- NUEVO CLIENTE ---------------\n");
+
+    printf("Ingrese DNI sin puntos: ");
+    scanf(" %d", &aux_int);
+    while(aux_int <0){
+        printf("Error\n");
+        printf("Ingrese DNI sin puntos: ");
+        scanf(" %d", &aux_int);
+    }
+
+    if(buscarID(l, aux_int)==1){
+        printf("Ya existe un cliente con ese DNI\n");
+        return 0;
+    }
+    else{
+        setClienteIdCliente(c, aux_int);
+        setClienteCantT(c, 0);
+        setClienteNivel(c);
+
+        printf("Ingrese apellido: "); scanf(" %30[^\n]s", aux_char);
+        setClienteApellido(c, aux_char);
+
+        printf("Ingrese nombre: "); scanf(" %30[^\n]s", aux_char);
+        setClienteNombre(c, aux_char);
+
+        while(!isOosEs(*l)){
+            forwardsEs(l);
+        }
+        inseertEs(l, *c);
+        forwardsEs(l);
+    }
+
+    return 0;
+}
+
+void cargar_NuevoClientePorParam(Cliente *c, Lista_cliente *l, int id){               //ITEM L  //MOVER DESPUES DE LLAMAR LA FUNCION
+    char aux_char[31];
+
+    system("cls");
+    printf("--------------- NUEVO CLIENTE ---------------\n");
+
+    setClienteIdCliente(c, id);
+    setClienteCantT(c, 0);
+    setClienteNivel(c);
+
+    printf("Ingrese apellido: "); scanf(" %30[^\n]s", aux_char);
+    setClienteApellido(c, aux_char);
+
+    printf("Ingrese nombre: "); scanf(" %30[^\n]s", aux_char);
+    setClienteNombre(c, aux_char);
+
+    while(!isOosEs(*l)){
+        forwardsEs(l);
+    }
+    inseertEs(l, *c);
+    forwardsEs(l);
+}
+
+float calcular_descuento(float monto, Lista_cliente lista){        //FUNCION AUXILIAR(CARGAR TURNO)
+    float aux;
+    Cliente ct;
+    ct = copyyEs(lista);
+
+    if(getClienteNivel(ct)== 0)
+        return 0;
+    if(getClienteNivel(ct)== 1){
+        aux = 5*monto;
+        aux = aux/100;
+        return aux;
+    }
+    if(getClienteNivel(ct)== 2){
+        aux = 10*monto;
+        aux = aux/100;
+        return aux;
+    }
+    if(getClienteNivel(ct)== 3){
+        aux = 15*monto;
+        aux = aux/100;
+        return aux;
+    }
+
+    return 0;
+}
+
+void mostrar_ListaTurnos(Lista_cliente l_clientes, Lista_din l, int cant){
+    int i;
+    Turno aux;
+    reset(&l);
+    resetListaEs(&l_clientes);
+
+    while(!isOos(l)){
+        aux = copyy(l);
+        printf("--------------------------- ID-Turno %d ---------------------------\n\n", get_idTurno(aux));
+        printf("Fecha: %d/%d/%d             DNI: %d                  \n", get_dia(aux), get_mes(aux), get_anio(aux), get_idCliente(aux));
+        printf("Hora: %d HS                                           \n", get_horario(aux));
+        printf("Nombre: %s, %s                                 \n", get_apellido(aux), get_nombre(aux));
+        printf("Cantidad de tratamientos: %d                         \n", get_cantTratamientos(aux));
+        printf("Realizado: ");
+        if(get_realizado(aux) == 1)
+            printf("Si\n");
+        else
+            printf("No\n");
+        printf("Metodo de pago: %s                                   \n", get_formaDePago(aux));
+        printf("Total: %.2f                                          \n", get_total(aux));
+        printf("--------------------------- Tratamientos ---------------------------\n");
+        for(i = 0; i < 10 ; i++){
+            if(get_indiceTratamientos(aux, i) != 0){
+                printf("<%d> %s | [%.2f]\n", i, get_nombreTratamiento(aux, i), get_preciosTratamientos(aux, i));
+            }
+        }
+        printf("-------------------------------------------------------------------\n");
+
+        //MostrarBuscarID(&l_clientes, get_idCliente(aux));
+        //printf("--------------------------------------------------\n");
+        forwards(&l);
+    }
+}
+
+int buscarTurnoNoRealizadoPorIdPeroModificaLis(Lista_din *lis, int id){ //ITEM B?????
+    reset(lis);
+    Turno aux;
+
+    do{
+        aux = copyy(*lis);
+        if(id==get_idCliente(aux)){
+            if(get_realizado(aux)==0){
+                return 1;
+            }
+            else{
+                forwards(lis);
+            }
+        }
+        else{
+            forwards(lis);
+        }
+    }while(!isOos(*lis));
+
+    return 0;
+}
+
+int buscarTurnoNoRealizadoPorId(Lista_din lis, int id){ //ITEM B?????
+    reset(&lis);
+    Turno aux;
+
+    if(isOos(lis)==1)
+        return 0;
+
+    else{
+        aux = copyy(lis);
+        do{
+            if(id==get_idCliente(aux)){
+                if(get_realizado(aux)==0){
+                    return 1;
+                }
+                else{
+                    forwards(&lis);
+                }
+            }
+            else{
+                forwards(&lis);
+            }
+        }while(!isOos(lis));
+    }
+    return 0;
+}
+
+void carga_datosTurno(Turno *t, Lista_cliente lista, Lista_din *lis, Cliente c, int *cant_turnos, float *auxTotal){          //FUNCION AUXILIAR(CARGAR TURNO)
+    int i, auxInt, sel, auxCantTrat;
+    *auxTotal = 0;
+    auxCantTrat = 0;
+
+    *cant_turnos = *cant_turnos + 1;
+    set_initTotal(t);
+    set_idTurno(t, *cant_turnos);
+
+    system("cls");
+    for(i=0;i<10;i++){                                      //IMPRIME TRATAMIENTOS
+        printf("<%d> %s | [$%.2f]\n", i, get_nombreTratamiento(*t, i), get_preciosTratamientos(*t, i));
+    }
+
+    printf("\nIngrese cuantos tratamientos se desea realizar el cliente: [MAX 9]\n> ");
+    scanf(" %d", &auxInt);
+    while(auxInt < 0 || auxInt > 9){                        //CONTROL (MAX 2)
+        printf("MAXIMO 9 TRATAMIENTOS...\n> ");
+        scanf(" %d", &auxInt);
+    }
+
+
+
+    for(i = 0; i < auxInt; i++){                            //CARGAR TRATAMIENTOS
+        printf("--------------------- TRATAMIENTO %d ---------------------\n", i + 1);
+        printf("Cual tratamiento desea?\n> ");
+        do{
+            scanf(" %d", &sel);
+        }while(sel < 0 && sel > 11 && sel !=10);
+        set_tratamientos(t,sel);
+        auxCantTrat = auxCantTrat +1;
+        *auxTotal = *auxTotal + get_preciosTratamientos(*t, sel);
+    }
+
+    system("cls");
+    set_anio(t, 2024);
+
+    printf("Ingrese el mes que desea realizar el turno:       [Entre 11 y 12]\n> ");      //MES
+    scanf(" %d", &auxInt);
+    while(auxInt < 11 || auxInt > 12){
+        printf("Mes invalido...\n> ");
+        scanf(" %d", &auxInt);
+    }
+    set_mes(t, auxInt);
+
+    if(auxInt == 11){                                                       //DIA
+        printf("Ingrese el dia que desea realizar el turno:\n> ");
+        scanf(" %d", &auxInt);
+        while(auxInt < 0 || auxInt > 30){                           //EN CASO DE QUE SEA NOVIEMBRE
+            printf("Ingrese nuevamente...\n> ");
+            scanf(" %d", &auxInt);
+        }
+        set_dia(t, auxInt);
+    }else{
+        printf("Ingrese el dia que desea realizar el turno:\n> ");
+        scanf(" %d", &auxInt);
+        while(auxInt < 0 || auxInt > 31){                           //EN CASO DE QUE SEA DICIEMBRE
+            printf("Ingrese nuevamente...\n> ");
+            scanf(" %d", &auxInt);
+        }
+        set_dia(t, auxInt);
+    }
+
+    printf("Ingrese el horario en el que desea realizar el turno: [9HS A 20HS]\n> ");           //HORARIO
+    scanf(" %d", &auxInt);
+    while(auxInt < 9 || auxInt > 20){
+        printf("Fuera de horario...\n> ");
+        scanf(" %d", &auxInt);
+    }
+    set_horario(t,auxInt);
+    set_cantTrat(t, auxCantTrat);
+}
+
+int cargar_turno(Turno t, Lista_din *lis, Lista_cliente *lista, Cliente c, int *cant_turnos){          //ITEM A    //FUNCION AUXILIAR(CARGAR TURNO)
+    int auxID, sel, auxInt, auxInt2;
+    float auxTotal;
+    Cliente ct;
+
+    set_initTratamientos(&t);
+
+    system("cls");
+
+    do{
+        printf("----------CARGAR UN TURNO----------\n");
+        printf("<1> Continuar\n");
+        printf("<2> Volver\n");
+        scanf(" %d", &sel);
+    }while(sel !=1 && sel != 2);
+
+    switch(sel){
+
+        case 1:{
+            system("cls");
+            printf("----------CARGAR UN TURNO----------\n");
+            printf("Ingrese el DNI de la persona: ");
+            scanf(" %d", &auxID);
+            while(auxID <0){
+                printf("Error\n");
+                printf("Ingrese el DNI de la persona: ");
+                scanf(" %d", &auxID);
+            }
+
+            if(buscarTurnoNoRealizadoPorId(*lis, auxID)==1){
+                printf("Este cliente ya tiene un turno sin realizar\n");
+                return 0;
+                }
+
+            if(buscarTurnoNoRealizadoPorId(*lis, auxID)==0){
+                if(buscarID(lista, auxID)==1){                      //SI ESTÁ REGISTADO EL CLIENTE:
+                    ct = copyyEs(*lista);
+                    set_nombre(&t, getClienteNombre(ct));
+                    set_apellido(&t, getClienteApellido(ct));
+                }
+
+                if(buscarID(lista, auxID)==0){
+                    system("cls");
+                    printf("No existe un cliente con ese DNI, debera cargar uno nuevo\n");
+                    printf("<1> Continuar\n");
+                    printf("<2> Salir\n");
+                    do{
+                        scanf(" %d", &auxInt);
+                    }while(auxInt != 1 && auxInt != 2);
+
+                    if(auxInt == 2)
+                        return 0;
+
+                    else{
+                    cargar_NuevoClientePorParam(&c, lista, auxID);
+                    buscarID(lista, auxID);
+                    ct = copyyEs(*lista);
+                    set_nombre(&t, getClienteNombre(ct));
+                    set_apellido(&t, getClienteApellido(ct));
+                    }
+                }
+
+                set_idCliente(&t, getClienteIdCliente(ct));
+
+                carga_datosTurno(&t, *lista, lis, c, cant_turnos, &auxTotal);
+
+                system("cls");
+                printf("--------------CONFIRMACION DE TURNO--------------\n");
+                printf("Subtotal: %.2f\n", auxTotal);
+
+                if(calcular_descuento(auxTotal, *lista) == 0)
+                    printf("Descuento: 0.00\n");
+                else{
+                    printf("Descuento: -%.2f\n", calcular_descuento(auxTotal, *lista));
+                    auxTotal = auxTotal - calcular_descuento(auxTotal, *lista);
+                }
+                printf("Total: %.2f\n", auxTotal);
+                printf("\n<1> Para CONFIRMAR el turno\n");
+                printf("<2> Para CANCELAR el turno\n> ");
+                scanf(" %d", &auxInt);
+
+                while(auxInt < 1 || auxInt > 2){
+                    printf("Opcion incorrecta...\n> ");
+                    scanf(" %d", &auxInt);
+                }
+
+                switch(auxInt){
+                    case 1:{
+                            system("cls");
+                            printf("---------------METODO DE PAGO---------------\n");
+                            printf("<1> Efectivo\n");
+                            printf("<2> Debito\n");
+                            printf("<3> Credito\n");
+                            printf("<4> QR\n> ");
+                            scanf(" %d", &auxInt2);
+
+                            while(auxInt2 < 1 || auxInt2 > 4){
+                                printf("Opcion incorrecta...\n> ");
+                                scanf(" %d", &auxInt2);
+                            }
+
+                        set_forma_de_pago(&t, auxInt2);
+                        set_total(&t, auxTotal);
+                        set_realizado(&t, 0);
+                        inseert(lis, t);
+                        forwards(lis);
+
+                    }break;
+
+                    case 2:{
+                        inseert(lis, t);
+                        suppress(lis);
+                        *cant_turnos = *cant_turnos - 1;
+
+                    }break;
+                }               //SWITCH CONFIRMACION
+
+            }
+        }break;
+
+        case 2:{
+                system("cls");
+                printf("Volviendo al menu...\n\n");
+            }break;
+    }
+
+
+    return 0;
+}
+
+void buscarTurnosPorMes(Lista_din lis, int mes){
+    Turno roll;
+    int i;
+    reset(&lis);
+    printf("\n-------------- TURNOS DEL MES %d --------------\n", mes);
+    while(!isOos(lis)){
+        roll = copyy(lis);
+        if(get_mes(roll)==mes){
+            printf("--------------------------- Turno %d ---------------------------\n\n", get_idTurno(roll));
+            printf("Fecha: %d/%d/%d             DNI: %d                  \n", get_dia(roll), get_mes(roll), get_anio(roll), get_idCliente(roll));
+            printf("Hora: %d HS                                           \n", get_horario(roll));
+            printf("Nombre del turno: %s                                 \n", get_nombre(roll));
+            printf("Cantidad de tratamientos: %d                         \n", get_cantTratamientos(roll));
+            printf("Realizado: ");
+            if(get_realizado(roll) == 1)
+                printf("Si\n");
+            else
+                printf("No\n");
+            printf("Metodo de pago: %s                                   \n", get_formaDePago(roll));
+            printf("--------------------------- Tratamientos ---------------------------\n");
+            for(i = 0; i < 9; i++){
+                if(get_indiceTratamientos(roll, i) > 0){
+                    printf("<%d> %s | [%.2f]\n", i, get_nombreTratamiento(roll, i), get_preciosTratamientos(roll, i));
+                }
+            }
+            printf("Total: %.2f                                          \n", get_total(roll));
+            printf("-------------------------------------------------------------------\n");
+
+            forwards(&lis);
+        }
+        else{
+            forwards(&lis);
+        }
+    }
+}
+
+int cancelarTurno(Lista_din *lis, Lista_cliente clientes, int *cant){
+    int idcliente, auxInt, i;
+    Turno aux;
+    reset(lis);
+    system("cls");
+    FILE *f = fopen("turnos_cancelados.txt", "a+");
+
+    if(f == NULL){
+        printf("ERROR EN EL ARCHIVO\n");
+    }
+    else{
+
+        printf("--------------- ELIMINAR UN TURNO ---------------\n");
+        printf("Ingrese el DNI del cliente del turno a cancelar: ");
+        scanf(" %d", &idcliente);
+        do{
+            aux = copyy(*lis);
+            if(get_idCliente(aux) == idcliente){
+                    if(get_realizado(aux) == 0){
+                        printf("----------- INFORMACION DEL TURNO ENCONTRADO -----------\n");
+                        printf("DNI Cliente: %d\n", get_idCliente(aux));
+                        printf("Tratamientos: %d\n", get_cantTratamientos(aux));
+                        printf("Total: %.2f\n", get_total(aux));
+                        printf("\n-------------- CONFIRMAR BORRAR TURNO --------------\n");
+                        printf("<1> CONFIRMAR\n");
+                        printf("<2> CANCELAR\n");
+                        do{
+                            scanf(" %d", &auxInt);
+                        }while(auxInt != 1 && auxInt != 2);
+
+                        switch(auxInt){
+                            case 1:{
+                                fprintf(f, "--------------------------- Turno %d ---------------------------\n\n", get_idTurno(aux));
+                                fprintf(f, "Fecha: %d/%d/%d             DNI: %d                  \n", get_dia(aux), get_mes(aux), get_anio(aux), get_idCliente(aux));
+                                fprintf(f, "Hora: %d HS                                           \n", get_horario(aux));
+                                fprintf(f, "Nombre del turno: %s                                 \n", get_nombre(aux));
+                                fprintf(f, "Cantidad de tratamientos: %d                         \n", get_cantTratamientos(aux));
+                                fprintf(f, "Metodo de pago: %s                                   \n", get_formaDePago(aux));
+                                fprintf(f, "--------------------------- Tratamientos ---------------------------\n");
+                                for(i = 0; i < 9; i++){
+                                    if(get_indiceTratamientos(aux, i) > 0){
+                                        fprintf(f, "<%d> %s | [%.2f]\n", i, get_nombreTratamiento(aux, i), get_preciosTratamientos(aux, i));
+                                    }
+                                }
+                                fprintf(f, "Total: %.2f                                          \n", get_total(aux));
+                                fprintf(f, "-------------------------------------------------------------------\n");
+
+                                suppress(lis);
+                                cant--;
+                                printf("Se cancelo el turno exitosamente...\n");
+                                fclose(f);
+                                return 1;
+                            }break;
+
+                            case 2:{
+                                system("cls");
+                                return 0;
+                            }break;
+                        }
+                    }
+                    else{
+                        forwards(lis);
+                    }
+            }
+            else{
+                forwards(lis);
+            }
+        }while(!isOos(*lis));
+
+        if(isOos(*lis) == 1){
+            printf("No existe el turno o ya esta realizado...\n");
+            fclose(f);
+            return 0;
+        }
+    }
+
+    return 0;
+}
+
+int buscarTurnoPorID(Lista_din *lis, int id){          //1 SI LO ENCUENTRA, 0 SI NO
+    Turno aux;
+    reset(lis);
+    while(!isOos(*lis)){
+        aux = copyy(*lis);
+        if(get_idCliente(aux)==id){
+            return 1;
+        }
+
+        else{
+            forwards(lis);
+        }
+    }
+    return 0;
+}
+
+int mostrarTurnoPorID_recur(Lista_din lis, int id, Turno aux){
+    if(isOos(lis)==1){
+        return 0;
+    }else{
+        aux = copyy(lis);
+        if(id == get_idCliente(aux)){
+            printf("\nDNI: %d\n", get_idCliente(aux));
+            printf("Fecha: %d/%d/%d\n", get_dia(aux), get_mes(aux), get_anio(aux));
+            printf("Horario: %d HS\n", get_horario(aux));
+            printf("Total: %.2f\n", get_total(aux));
+            forwards(&lis);
+            return mostrarTurnoPorID_recur(lis, id, aux);
+        }
+
+        else{
+            forwards(&lis);
+            return mostrarTurnoPorID_recur(lis, id, aux);
+        }
+    }
+}
+
+int modificarTurno(Lista_din lis, Lista_cliente *clientes){
+    int auxInt, sel, auxID, auxInt2;
+    Turno aux;
+    system("cls");
+
+    printf("--------MODIFICAR TURNO--------\n\n");
+    printf("Ingrese el DNI del cliente que desea modificar el turno: ");
+    scanf(" %d", &auxID);
+
+    if(buscarTurnoNoRealizadoPorIdPeroModificaLis(&lis, auxID)==1){
+        aux = copyy(lis);
+        do{
+            system("cls");
+            printf("--------MODIFICAR TURNO---------\n");
+            printf("<1> Cambiar forma de pago\n");
+            printf("<2> Cambiar estado de realizacion\n");
+            printf("<3> Volver al menu\n");
+            scanf(" %d", &sel);
+        switch(sel){
+
+            case 1:{
+                do{
+                    system("cls");
+                    printf("--------MODIFICAR LA FORMA DE PAGO--------\n");
+                    printf("<1> Efectivo\n");
+                    printf("<2> Debito\n");
+                    printf("<3> Credito\n");
+                    printf("<4> QR\n");
+                    scanf(" %d", &auxInt);
+                }while(auxInt<1 && auxInt>4);
+
+                set_forma_de_pago(&aux, auxInt);
+                printf("Se modifico el turno exitosamente\n");
+            }break;
+
+            case 2:{
+                printf("--------MODIFICAR ESTADO DEL TURNO--------\n");
+                printf("<1> Continuar\n");
+                printf("<2> Volver\n");
+                do{
+                    scanf(" %d", &auxInt);
+                }while(auxInt <1 && auxInt>2);
+
+                if(auxInt == 1){
+                    set_realizado(&aux, 1);
+                    printf("Se modifico el turno exitosamente\n");
+                    auxInt2 = get_cantTratamientos(aux);
+                }
+                if(auxInt == 2)
+                    return 0;
+            }break;
+
+            case 3:{
+                return 0;
+            }break;
+
+        }   //SWITCH
+
+    }while(sel !=2);  //MENU
+    suppress(&lis);
+    inseert(&lis, aux);
+    modificar_ClienteCantT_AUTOMATICO(clientes, auxInt2, auxID);
+    }
+
+    else
+        printf("No se encuentra un turno sin realizar con ese DNI o no hay turnos con ese DNI\n");
+
+
+    return 0;
+}
+
+int buscarTurnoPorNombre(Lista_din *lis, char nombre[]){
+    Turno aux;
+    int i, auxInt, pop;
+    pop=0;
+    reset(lis);
+    system("cls");
+
+    while(!isOos(*lis)){
+        aux = copyy(*lis);
+        if(strcmp(nombre, get_nombre(aux))==0){
+            printf("--------------------------- Turno %d ---------------------------\n\n", get_idTurno(aux));
+            printf("Fecha: %d/%d/%d             DNI: %d                  \n", get_dia(aux), get_mes(aux), get_anio(aux), get_idCliente(aux));
+            printf("Hora: %d HS                                           \n", get_horario(aux));
+            printf("Nombre del turno: %s, %s                                 \n",get_apellido(aux), get_nombre(aux));
+            printf("Cantidad de tratamientos: %d                         \n", get_cantTratamientos(aux));
+            printf("Realizado: ");
+            if(get_realizado(aux) == 1)
+                printf("Si\n");
+            else
+                printf("No\n");
+            printf("Metodo de pago: %s                                   \n", get_formaDePago(aux));
+            printf("--------------------------- Tratamientos ---------------------------\n");
+            for(i = 0; i < 9; i++){
+                if(get_indiceTratamientos(aux, i) > 0){
+                    printf("<%d> %s | [%.2f]\n", i, get_nombreTratamiento(aux, i), get_preciosTratamientos(aux, i));
+                }
+            }
+            printf("Total: %.2f                                          \n", get_total(aux));
+            printf("-------------------------------------------------------------------\n");
+            pop = pop +1;
+            forwards(lis);
+            if(pop==3){
+                printf("\nIngrese <1> para ver la siguiente pagina\n");
+                printf("Ingrese <2> para salir\n");
+                do{
+                    scanf(" %d", &auxInt);
+                }while(auxInt != 1 && auxInt != 2);
+                if(auxInt == 1){
+                    system("cls");
+                    pop=0;
+                }
+                if(auxInt == 2)
+                    return 0;
+            }
+        }
+        else{
+            forwards(lis);
+        }
+    }
+
+    if(isOos(*lis)==1)
+        printf("\nNo hay mas turnos\n");
+
+}
+
+float calcularGananciaMensual(Lista_din lis, int mes, float *total, Turno aux){
+
+    if(isOos(lis)==1)
+        return *total;
+
+    else{
+        aux = copyy(lis);
+        if(get_mes(aux)== mes && get_realizado(aux)==1){
+            *total = *total + get_total(aux);
+            forwards(&lis);
+            return  calcularGananciaMensual(lis, mes, total, aux);
+        }
+
+        else{
+            forwards(&lis);
+            return calcularGananciaMensual(lis, mes, total, aux);
+        }
+    }
+}
+
+void turnosPagados(int Pago, Lista_din turnos, Lista_cliente clientes){
+    Turno aux;
+    FILE *qr, *efectivo, *debito, *credito;
+    int i, total = 0;
+
+        if(Pago == 1){
+            efectivo = fopen("TurnosRealizados_EFECTIVO.txt", "w+");
+
+            if(efectivo == NULL){
+                printf("No existe el archivo...\n");
+            }else{
+                reset(&turnos);
+                do{
+                    aux = copyy(turnos);
+                    if(get_realizado(aux) == 1){
+                        if(strcmp(get_formaDePago(aux), "Efectivo") == 0){
+                            fprintf(efectivo, "--------------------------- Turno %d ---------------------------\n\n", get_idTurno(aux));
+                            fprintf(efectivo, "Fecha: %d/%d/%d             DNI: %d                  \n", get_dia(aux), get_mes(aux), get_anio(aux), get_idCliente(aux));
+                            fprintf(efectivo, "Hora: %d HS                                           \n", get_horario(aux));
+                            fprintf(efectivo, "Nombre del turno: %s                                 \n", get_nombre(aux));
+                            fprintf(efectivo, "Cantidad de tratamientos: %d                         \n", get_cantTratamientos(aux));
+                            fprintf(efectivo, "Metodo de pago: %s                                   \n", get_formaDePago(aux));
+                            fprintf(efectivo, "--------------------------- Tratamientos ---------------------------\n");
+                            for(i = 0; i < 9; i++){
+                                if(get_indiceTratamientos(aux, i) > 0){
+                                    fprintf(efectivo, "<%d> %s | [%.2f]\n", i, get_nombreTratamiento(aux, i), get_preciosTratamientos(aux, i));
+                                }
+                            }
+                            fprintf(efectivo, "Total: %.2f                                          \n", get_total(aux));
+                            fprintf(efectivo, "-------------------------------------------------------------------\n");
+                            total++;
+                            forwards(&turnos);
+                        }else{
+                            forwards(&turnos);
+                        }
+                    }else{
+                        forwards(&turnos);
+                    }
+                }while(!isOos(turnos));
+
+            }
+            fclose(efectivo);
+        }
+
+        if(Pago == 2){
+            debito = fopen("TurnosRealizados_DEBITO.txt", "w+");
+
+            if(debito == NULL){
+                printf("No existe el archivo...\n");
+            }else{
+                reset(&turnos);
+                do{
+                    aux = copyy(turnos);
+                    if(get_realizado(aux) == 1){
+                        if(strcmp(get_formaDePago(aux), "Debito") == 0){
+                            fprintf(debito, "--------------------------- Turno %d ---------------------------\n\n", get_idTurno(aux));
+                            fprintf(debito, "Fecha: %d/%d/%d             DNI: %d                  \n", get_dia(aux), get_mes(aux), get_anio(aux), get_idCliente(aux));
+                            fprintf(debito, "Hora: %d HS                                           \n", get_horario(aux));
+                            fprintf(debito, "Nombre del turno: %s                                 \n", get_nombre(aux));
+                            fprintf(debito, "Cantidad de tratamientos: %d                         \n", get_cantTratamientos(aux));
+                            fprintf(debito, "Metodo de pago: %s                                   \n", get_formaDePago(aux));
+                            fprintf(debito, "--------------------------- Tratamientos ---------------------------\n");
+                            for(i = 0; i < 9; i++){
+                                if(get_indiceTratamientos(aux, i) > 0){
+                                    fprintf(debito, "<%d> %s | [%.2f]\n", i, get_nombreTratamiento(aux, i), get_preciosTratamientos(aux, i));
+                                }
+                            }
+                            fprintf(debito, "Total: %.2f                                          \n", get_total(aux));
+                            fprintf(debito, "-------------------------------------------------------------------\n");
+                            total++;
+                            forwards(&turnos);
+                        }else{
+                            forwards(&turnos);
+                        }
+                    }else{
+                        forwards(&turnos);
+                    }
+                }while(!isOos(turnos));
+
+            }
+            fclose(debito);
+        }
+
+       if(Pago == 3){
+            credito = fopen("TurnosRealizados_CREDITO.txt", "w+");
+
+            if(credito == NULL){
+                printf("No existe el archivo...\n");
+            }else{
+                reset(&turnos);
+                do{
+                    aux = copyy(turnos);
+                    if(get_realizado(aux) == 1){
+                        if(strcmp(get_formaDePago(aux), "Credito") == 0){
+                            fprintf(credito, "--------------------------- Turno %d ---------------------------\n\n", get_idTurno(aux));
+                            fprintf(credito, "Fecha: %d/%d/%d             DNI: %d                  \n", get_dia(aux), get_mes(aux), get_anio(aux), get_idCliente(aux));
+                            fprintf(credito, "Hora: %d HS                                           \n", get_horario(aux));
+                            fprintf(credito, "Nombre del turno: %s                                 \n", get_nombre(aux));
+                            fprintf(credito, "Cantidad de tratamientos: %d                         \n", get_cantTratamientos(aux));
+                            fprintf(credito, "Metodo de pago: %s                                   \n", get_formaDePago(aux));
+                            fprintf(credito, "--------------------------- Tratamientos ---------------------------\n");
+                            for(i = 0; i < 9; i++){
+                                if(get_indiceTratamientos(aux, i) > 0){
+                                    fprintf(credito, "<%d> %s | [%.2f]\n", i, get_nombreTratamiento(aux, i), get_preciosTratamientos(aux, i));
+                                }
+                            }
+                            fprintf(credito, "Total: %.2f                                          \n", get_total(aux));
+                            fprintf(credito, "-------------------------------------------------------------------\n");
+                            total++;
+                            forwards(&turnos);
+                        }else{
+                            forwards(&turnos);
+                        }
+                    }else{
+                        forwards(&turnos);
+                    }
+                }while(!isOos(turnos));
+
+            }
+            fclose(credito);
+        }
+
+        if(Pago == 4){
+            qr = fopen("TurnosRealizados_QR.txt", "w+");
+
+            if(qr == NULL){
+                printf("No existe el archivo...\n");
+            }else{
+                reset(&turnos);
+                do{
+                    aux = copyy(turnos);
+                    if(get_realizado(aux) == 1){
+                        if(strcmp(get_formaDePago(aux), "QR") == 0){
+                            fprintf(qr, "--------------------------- Turno %d ---------------------------\n\n", get_idTurno(aux));
+                            fprintf(qr, "Fecha: %d/%d/%d             DNI: %d                  \n", get_dia(aux), get_mes(aux), get_anio(aux), get_idCliente(aux));
+                            fprintf(qr, "Hora: %d HS                                           \n", get_horario(aux));
+                            fprintf(qr, "Nombre del turno: %s                                 \n", get_nombre(aux));
+                            fprintf(qr, "Cantidad de tratamientos: %d                         \n", get_cantTratamientos(aux));
+                            fprintf(qr, "Metodo de pago: %s                                   \n", get_formaDePago(aux));
+                            fprintf(qr, "--------------------------- Tratamientos ---------------------------\n");
+                            for(i = 0; i < 9; i++){
+                                if(get_indiceTratamientos(aux, i) > 0){
+                                    fprintf(qr, "<%d> %s | [%.2f]\n", i, get_nombreTratamiento(aux, i), get_preciosTratamientos(aux, i));
+                                }
+                            }
+                            fprintf(qr, "Total: %.2f                                          \n", get_total(aux));
+                            fprintf(qr, "-------------------------------------------------------------------\n");
+                            forwards(&turnos);
+                        }else{
+                            forwards(&turnos);
+                        }
+                    }else{
+                        forwards(&turnos);
+                    }
+                }while(!isOos(turnos));
+
+            }
+            fclose(qr);
+        }
+
+        if(Pago == 1){
+            system("cls");
+
+            if(total == 0){
+                printf("No se encontro ningun turno pagado por [EFECTIVO]\n");
+            }else{
+                printf("Se cargaron exitosamente: %d turnos pagados por " "Efectivo" "\n", total);
+            }
+        }
+
+        if(Pago == 2){
+            system("cls");
+
+            if(total == 0){
+                printf("No se encontro ningun turno pagado por [DEBITO]\n");
+            }else{
+                printf("Se cargaron exitosamente: %d turnos pagados por " "Debito" "\n", total);
+            }
+        }
+
+        if(Pago == 3){
+            system("cls");
+
+            if(total == 0){
+                printf("No se encontro ningun turno pagado por [CREDITO]\n");
+            }else{
+                printf("Se cargaron exitosamente: %d turnos pagados por " "Credito" "\n", total);
+            }
+        }
+
+        if(Pago == 4){
+            system("cls");
+
+            if(total == 0){
+                printf("No se encontro ningun turno pagado por [QR]\n");
+            }else{
+                printf("Se cargaron exitosamente: %d turnos pagados por " "QR" "\n", total);
+            }
+        }
+}
+
+int buscarTurnoNoRealizados(Lista_din lis){
+    int i;
+    reset(&lis);
+    Turno aux;
+    system("cls");
+    printf("--------------TURNOS NO REALIZADOS--------------\n");
+
+    if(isOos(lis)==1){
+        return 0;
+    }
+
+    else{
+        do{
+            aux = copyy(lis);
+            if(get_realizado(aux)==0){
+                printf("--------------------------- Turno %d ---------------------------\n\n", get_idTurno(aux));
+                printf("Fecha: %d/%d/%d             DNI: %d                  \n", get_dia(aux), get_mes(aux), get_anio(aux), get_idCliente(aux));
+                printf("Hora: %d HS                                           \n", get_horario(aux));
+                printf("Nombre del turno: %s                                 \n", get_nombre(aux));
+                printf("Cantidad de tratamientos: %d                         \n", get_cantTratamientos(aux));
+                printf("Metodo de pago: %s                                   \n", get_formaDePago(aux));
+                printf("--------------------------- Tratamientos ---------------------------\n");
+                for(i = 0; i < 9; i++){
+                    if(get_indiceTratamientos(aux, i) > 0){
+                        printf("<%d> %s | [%.2f]\n", i, get_nombreTratamiento(aux, i), get_preciosTratamientos(aux, i));
+                    }
+                }
+                printf("Total: %.2f                                          \n", get_total(aux));
+                printf("-------------------------------------------------------------------\n");
+                forwards(&lis);
+            }
+            else{
+                forwards(&lis);
+            }
+        }while(!isOos(lis));
+    }
+    return 0;
+}
+
+void mostrarTurnosPorTratamiento(Lista_din lis, int trat){
+    Turno aux;
+    reset(&lis);
+
+    if(isOos(lis)==1){
+        printf("No hay mas turnos\n");
+    }
+
+    else{
+        printf("--------------------------- Turnos con tratamiento de %s ---------------------------\n", get_nombreTratamiento(aux, trat));
+        do{
+            aux = copyy(lis);
+            if(get_indiceTratamientos(aux, trat)!=0){
+                printf("--------------------------- Turno %d ---------------------------\n\n", get_idTurno(aux));
+                printf("Fecha: %d/%d/%d             DNI: %d                  \n", get_dia(aux), get_mes(aux), get_anio(aux), get_idCliente(aux));
+                printf("Hora: %d HS                                           \n", get_horario(aux));
+                printf("Nombre del turno: %s                                 \n", get_nombre(aux));
+                printf("Cantidad de tratamientos: %d                         \n", get_cantTratamientos(aux));
+                printf("Realizado: ");
+                if(get_realizado(aux) == 1)
+                    printf("Si\n");
+                else
+                    printf("No\n");
+                printf("Metodo de pago: %s                                   \n", get_formaDePago(aux));
+                printf("Total: %.2f                                          \n", get_total(aux));
+                printf("-------------------------------------------------------------------\n");
+                forwards(&lis);
+            }
+            else{
+                forwards(&lis);
+            }
+        }while(!isOos(lis));
+    }
+}
+
+
+//------------------------------------MEIN------------------------------------//
+
+//                      11/11/2024 01:19AM  TERMINE EL PMI -FALTA PULIR DETALLES-
+
+int main(){
+    //DECLARACIONES DE VARIABLES QUE USAMOS EN EL MAIN
+    char auxString[31];
+    int numDeNodo;
+    int auxInt, opcion, i, opcion2;
+    int cant_clientes;
+    cant_clientes = 0;
+    numDeNodo = 0;
+
+    //FIN
+
+    Lista_din lis;  //LISTA DINAMICA - OPERACIONES DE LISTA DINAMICA (TURNO)
+    Turno turno;    //TURNO (DINAMICA) - SETTER Y GETTER DE TURNO
+    Cliente cliente;    //CLIENTE .H SETTER Y GETTER DE CLIENTE
+    Lista_cliente lista;    //LISTA ESTATICA - OPERACIONES DE LISTA ESTATICA
+    set_initTratamientos(&turno);
+    initEs(&lista);
+    init(&lis);
+
+    Turno aux;
+
+    /*printf("Ingrese el nombre del cliente: ");            //EJEMPLO DE LSITA ESTATICA
+    scanf(" %[^\n]s", aux);
+    setClienteNombre(&cliente, aux);
+    inseertEs(&lista, cliente);
+    printf("El nombre del cliente es: %s\n", getClienteNombre(copyyEs(lista)));
+
+    printf("Ingrese el nombre del cliente del turno: ");                //EJEMPLO DE LISTA DINAMICA
+    scanf(" %[^\n]s", aux);
+    set_nombre(&turno, aux);
+    inseert(&lis, turno);
+    printf("El nombre del cliente del turno es: %s\n", get_nombre(copyy(lis,turno)));*/
+
+
+    precarga_clientes(&lista, &cliente, &cant_clientes);
+    printf("\n---------------------------- BIENVENIDO ----------------------------\n");
+    do{
+        printf("\n----------- MENU -----------\n");
+        printf("<1> Turnos\n");
+        printf("<2> Clientes\n");
+        printf("<3> Salir\n> ");
+        //printf("CANTIDAD DE LCIENTES: %d", cant_clientes);
+        scanf(" %d", &opcion);
+
+
+        switch(opcion){                                                                    //SWITCH GENERAL
+
+
+            //------------------------------------ TURNOS ------------------------------------
+            case 1:{
+                system("cls");
+                printf("\n----------- TURNOS -----------\n");
+                printf("<1> Cargar un nuevo turno\n");
+                printf("<2> Buscar turnos NO realizados\n");
+                printf("<3> Buscar un turno por nombre\n");
+                printf("<4> Modificar un turno\n");
+                printf("<5> Mostrar turnos\n");
+                printf("<6> Mostrar turnos por mes\n");
+                printf("<7> Mostrar turnos por DNI \n");
+                printf("<8> Cancelar un turno\n");
+                printf("<9> Calcular la ganancia de un mes\n");
+                printf("<10> Guardar turnos realizados por forma de pago\n");
+                printf("<11> Mostrar turnos por tratamiento\n");
+                printf("<12> Volver\n");
+                scanf(" %d", &opcion2);
+
+                switch(opcion2){                                                           //SWITCH TURNOS
+                    case 1:{                                                              //CARGAR NUEVO TURNO
+                        system("cls");
+                        cargar_turno(turno, &lis, &lista, cliente, &numDeNodo);
+                    }break;
+
+                    case 2:{                                                                      //BUSCAR TURNOS NO REALIZADOS
+                        system("cls");
+                        if(isEmpty(lis)==1)
+                            printf("No hay turnos cargados\n");
+                        else{
+                            buscarTurnoNoRealizados(lis);
+                        }
+
+                    }break;
+
+                    case 3:{
+                        system("cls");
+                        if(isEmpty(lis)==1)
+                            printf("No hay turnos cargados\n");
+                        else{
+                            system("cls");
+                            printf("--------------- MOSTRAR TURNOS POR NOMBRE ---------------\n");
+                            printf("Ingrese el nombre que desea buscar en los turnos: ");            //BUSCAR TURNO POR NOMBRE
+                            scanf(" %[^\n]s", auxString);
+                            buscarTurnoPorNombre(&lis, auxString);
+                        }
+                    }break;
+
+                    case 4:{                                                                      //MODIFICAR TURNO
+                        system("cls");
+                        if(isEmpty(lis)==1)
+                            printf("No hay turnos cargados\n");
+                        else{
+                            modificarTurno(lis, &lista);
+                        }
+                    }break;
+
+                    case 5:{
+                        system("cls");
+                        if(isEmpty(lis)==0)
+                            mostrar_ListaTurnos(lista, lis, numDeNodo);                       //MOSTRAR TURNOS (TODOS)
+                        else
+                            printf("No hay turnos cargados\n");
+
+                    }break;
+
+                    case 6:{                                                                   //MOSTRAR TURNOS POR MES
+                        system("cls");
+                        if(isEmpty(lis)==1)
+                            printf("No hay turnos cargados\n");
+                        else{
+                            system("cls");
+                            printf("--------------- MOSTRAR TURNOS POR MES ---------------\n");
+
+                            printf("Ingrese el mes del que desea ver los turnos\n> ");
+                            scanf(" %d", &auxInt);
+
+                            while(auxInt < 11 || auxInt > 12){
+                                printf("Mes invalido...\n> ");
+                                scanf(" %d", &auxInt);
+                            }
+                            buscarTurnosPorMes(lis, auxInt);
+                        }
+                    }break;
+
+                    case 7:{
+                        system("cls");
+                        if(isEmpty(lis)==1)
+                            printf("No hay turnos cargados\n");
+                        else{
+                            system("cls");
+                            printf("--------------- MOSTRAR TURNOS POR DNI ---------------\n");
+                            printf("Ingrese el DNI del cliente del que desea ver los turnos: ");              //MOSTRAR TURNOS POR ID
+                            scanf(" %d", &auxInt);
+                            system("cls");
+                            printf("Turnos realizados por: %d\n", auxInt);
+                            reset(&lis);
+                            mostrarTurnoPorID_recur(lis, auxInt, aux);
+                        }
+                    }break;
+
+                    case 8:{                                                                             //CANCELAR UN TURNO
+                        system("cls");
+                        if(isEmpty(lis))
+                            printf("No hay turnos cargados\n");
+                        else
+                            cancelarTurno(&lis, lista, &numDeNodo);
+                    }break;
+
+                    case 9:{                                                                            //CALCULAR LA GANANCIA DE UN MES
+                        float auxfloat;
+                        system("cls");
+                        auxfloat = 0;
+                        if(isEmpty(lis)==1)
+                            printf("No hay tunos cargados\n");
+                        else{
+                            reset(&lis);
+                            printf("------------- CALCULAR GANANCIA MENSUAL --------------\n");
+                            printf("Ingrese el mes del que desea calcular las ganancias: ");
+                            do{
+                                scanf(" %d", &auxInt);
+                                }while(auxInt <11 && auxInt >12);
+                            printf("La ganancia del mes %d es: %.2f\n", auxInt, calcularGananciaMensual(lis, auxInt, &auxfloat, aux));
+                        }
+                    }break;
+
+                    case 10:{                                                                           //GUARDAR TURNOS POR FORMA DE PAGO (REALIZADOS)
+                        system("cls");
+                        if(isEmpty(lis)==1)
+                            printf("No hay turnos cargados\n");
+                        else{
+                            system("cls");
+                            printf("-------------- GUARDAR TURNOS POR FORMA DE PAGO ---------------\n");
+                            printf("Ingrese la forma de pago\n");
+                            printf("<1> Efectivo\n");
+                            printf("<2> Debito\n");
+                            printf("<3> Credito\n");
+                            printf("<4> QR\n");
+
+                            do{
+                                scanf(" %d", &auxInt);
+                            }while(auxInt < 1 && auxInt >4);
+                            turnosPagados(auxInt, lis, lista);
+                        }
+                    }break;         //TE HABIAS OLVIDADO EL BREAK MAKINARIA
+
+                    case 11:{                                                                           //MOSTRAR TURNOS POR TRATAMIENTO
+                        system("cls");
+                        if(isEmpty(lis)==1)
+                            printf("No hay turnos cargados cargados\n");
+                        else{
+                            printf("------------ BUSCAR TURNOS POR TRATAMIENTO -----------\n");
+                            for(i=0;i<10;i++){
+                                printf("<%d> %s\n", i, get_nombreTratamiento(turno, i));
+                                }
+                                do{
+                                    scanf(" %d", &auxInt);
+                                }while(auxInt<1 && auxInt>9);
+
+                                mostrarTurnosPorTratamiento(lis, auxInt);
+                            }
+                    }break;
+
+                    case 12:{                                                                             //VOLVER A MENU
+                        system("cls");
+                    }break;
+
+                    default:{
+                        printf("Incorrecto\n");
+                    }break;
+
+                }
+            }break; //CASE 1 - TURNOS
+
+
+            //------------------------------------ FIN TURNOS ------------------------------------
+
+
+            //------------------------------------ CLIENTES ------------------------------------
+
+            case 2:{
+                system("cls");
+                printf("\n----------- CLIENTES -----------\n");
+                printf("<1> Cargar un nuevo cliente\n");
+                printf("<2> Buscar un cliente\n");
+                printf("<3> Eliminar un cliente\n");
+                printf("<4> Mostrar clientes cargados\n");
+                printf("<5> Modificar cantidad de tratamientos\n");
+                printf("<6> Volver\n");
+                scanf(" %d", &opcion2);
+
+                switch(opcion2){                                                           //SWITCH CLIENTES
+                    case 1:{                                                              //CARGAR NUEVO CLIENTE
+                        if(!isFullEs(lista)){
+                            printf("Cuantos clientes quiere cargar?\n> ");
+                            scanf(" %d", &auxInt);
+
+                            while(cant_clientes + auxInt > MAX){
+                                printf("No hay espacio...\nIngrese nuevamente\n> ");
+                                scanf(" %d", &auxInt);
+                            }
+                            auxInt = cant_clientes + auxInt;
+                            for(i = cant_clientes; i < auxInt; i++){
+                                cargar_NuevoCliente(&cliente, &lista);
+                                cant_clientes++;
+                            }
+                        }else
+                            printf("No queda espacio en la lista...\n");
+                        break;
+                    }
+                    case 2:{                                                              //BUSCAR CLIENTE
+                        system("cls");
+                        if(!isEmptyEs(lista)){
+                            printf("Ingrese el DNI del cliente a buscar\n> ");
+                            scanf(" %d", &auxInt);
+                            system("cls");
+                            MostrarBuscarID(&lista, auxInt);
+
+                        }
+                        else
+                            printf("No hay clientes cargados...\n");
+
+                        break;
+                    }
+                    case 3:{                                                              //ELIMINAR CLIENTE
+                        if(!isEmptyEs(lista)){
+                            eliminar_Cliente(&lista, cliente);
+                            cant_clientes--;
+                        }else{
+                            printf("La lista esta vacia...\n");
+                        }
+                        break;
+
+                    }
+                    case 4:{                                                             //MOSTRAR CLIENTES CARGADOS
+                        if(isEmptyEs(lista)==1)
+                            printf("La lista esta vacia...\n");
+
+                        else
+                            mostrar_ListaClientes(lista);
+                        break;
+                    }
+
+                    case 5:{
+                        if(!isEmptyEs(lista)){
+                            printf("Ingrese el DNI del cliente\n> ");
+                            scanf(" %d", &auxInt);
+
+                            modificar_ClienteCantT_MANUAL(&lista, auxInt);
+                        }else
+                            printf("La lista esta vacia...\n");
+                        break;
+                    }
+                    case 6:{                                                             //SALIR CLIENTES
+                        printf("Volviendo...\n");
+                        break;
+                    }
+
+                    default:{
+                        printf("Incorrecto\n");
+                    }break;
+
+                }       //SWITCH
+            }break;
+          //------------------------------------ FIN CLIENTES ------------------------------------
+            case 3:{
+                system("cls");                                                                   //SALIR DEL PROGRAMA
+            }break;
+
+            default:{
+                printf("Incorrecto\n");
+            }break;
+
+
+
+        }           //SWITCH MENU PRINCIPAL PRIMERODETODO MAL   CORTE EL VERDADERO MAIN EL UNICO EL MENU
+    }while(opcion != 3);          //CONDICION TERMINAR PROGRAMA     <-  XDDDD
+    return 0;
+}
